@@ -85,3 +85,44 @@ elif menu == "Claims":
         if st.form_submit_button("Claim Food"):
             run_action("INSERT INTO claims (Food_ID, Receiver_ID, Status, Timestamp) VALUES (?,?, 'Pending', datetime('now'))", (food_id, receiver_id))
             st.success("Claim submitted!")
+
+
+if menu == "Dashboard":
+    st.subheader("Overview")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Providers", run_query("SELECT COUNT(*) as count FROM providers")['count'][0])
+    col2.metric("Total Receivers", run_query("SELECT COUNT(*) as count FROM receivers")['count'][0])
+    col3.metric("Total Food Listings", run_query("SELECT COUNT(*) as count FROM food_listings")['count'][0])
+    col4.metric("Total Claims", run_query("SELECT COUNT(*) as count FROM claims")['count'][0])
+
+    st.markdown("---")
+
+    # Chart 1: Food Listings by City
+    st.subheader("Food Listings by City")
+    df_city = run_query("SELECT Location as City, COUNT(*) as Count FROM food_listings GROUP BY Location ORDER BY Count DESC LIMIT 10")
+    st.plotly_chart(px.bar(df_city, x='City', y='Count', title='Top 10 Cities'), use_container_width=True)
+
+    # Chart 2: Listings by Food Type - THE ONE YOU'RE MISSING
+    st.subheader("Listings by Food Type")
+    df_food_type = run_query("SELECT Food_Type, COUNT(*) as Count FROM food_listings GROUP BY Food_Type")
+    st.plotly_chart(px.bar(df_food_type, x='Food_Type', y='Count', color='Food_Type'), use_container_width=True)
+
+    # Chart 3: Claims Status
+    st.subheader("Claims Status Distribution")
+    df_status = run_query("SELECT Status, COUNT(*) as Count FROM claims GROUP BY Status")
+    st.plotly_chart(px.pie(df_status, names='Status', values='Count'), use_container_width=True)
+
+    # Chart 4: Meal Type Distribution
+    st.subheader("Meal Type Distribution")
+    df_meal = run_query("SELECT Meal_Type, COUNT(*) as Count FROM food_listings GROUP BY Meal_Type")
+    st.plotly_chart(px.bar(df_meal, x='Meal_Type', y='Count', color='Meal_Type'), use_container_width=True)
+
+    # Chart 5: Top Providers
+    st.subheader("Top 10 Providers by Listings")
+    df_top_providers = run_query("""
+        SELECT p.Name, COUNT(f.Food_ID) as Listings
+        FROM providers p
+        JOIN food_listings f ON p.Provider_ID = f.Provider_ID
+        GROUP BY p.Name ORDER BY Listings DESC LIMIT 10
+    """)
+    st.plotly_chart(px.bar(df_top_providers, x='Name', y='Listings'), use_container_width=True)
