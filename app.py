@@ -6,7 +6,7 @@ from datetime import date
 
 st.set_page_config(page_title="Food Wastage Management", layout="wide")
 
-DB_PASSWORD = "your_mysql_password" # <-- CHANGE THIS TO YOUR REAL PASSWORD
+DB_PASSWORD = "your_mysql_password" # <-- PUT YOUR REAL MYSQL PASSWORD HERE
 
 def get_connection():
     return mysql.connector.connect(
