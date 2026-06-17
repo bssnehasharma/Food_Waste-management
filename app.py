@@ -107,12 +107,7 @@ if menu == "Dashboard":
     df_food_type = run_query("SELECT Food_Type, COUNT(*) as Count FROM food_listings GROUP BY Food_Type")
     st.plotly_chart(px.bar(df_food_type, x='Food_Type', y='Count', color='Food_Type'), use_container_width=True)
 
-    # Chart 3: Claims Status
-    st.subheader("Claims Status Distribution")
-    df_status = run_query("SELECT Status, COUNT(*) as Count FROM claims GROUP BY Status")
-    st.plotly_chart(px.pie(df_status, names='Status', values='Count'), use_container_width=True)
-
-    # Chart 4: Meal Type Distribution
+    # Chart 3: Meal Type Distribution
     st.subheader("Meal Type Distribution")
     df_meal = run_query("SELECT Meal_Type, COUNT(*) as Count FROM food_listings GROUP BY Meal_Type")
     st.plotly_chart(px.bar(df_meal, x='Meal_Type', y='Count', color='Meal_Type'), use_container_width=True)
