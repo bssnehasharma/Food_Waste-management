@@ -8,19 +8,14 @@ st.set_page_config(page_title="Food Wastage Management", layout="wide")
 @st.cache_resource
 def init_db():
     conn = sqlite3.connect('food_waste.db', check_same_thread=False)
-    # Maps your _data.csv files to table names
-    file_table_map = {
-        'providers_data.csv': 'providers',
-        'receivers_data.csv': 'receivers',
-        'food_listings_data.csv': 'food_listings',
-        'claims_data.csv': 'claims'
-    }
-    for file_name, table_name in file_table_map.items():
+    # Auto-create tables from your CSV files
+    tables = ['providers', 'receivers', 'food_listings', 'claims']
+    for table in tables:
         try:
-            df = pd.read_csv(file_name)
-            df.to_sql(table_name, conn, if_exists='replace', index=False)
+            df = pd.read_csv(f'{table}.csv')
+            df.to_sql(table, conn, if_exists='replace', index=False)
         except Exception as e:
-            st.error(f"Error loading {file_name}: {e}")
+            st.error(f"Error loading {table}.csv: {e}")
     return conn
 
 conn = init_db()
@@ -35,6 +30,7 @@ def run_action(query, params=None):
     else:
         cursor.execute(query)
     conn.commit()
+    cursor.close()
 
 st.title("🍎 Food Wastage Management System")
 
@@ -48,12 +44,11 @@ if menu == "Dashboard":
     col3.metric("Food Listings", run_query("SELECT COUNT(*) as count FROM food_listings")['count'][0])
     col4.metric("Total Claims", run_query("SELECT COUNT(*) as count FROM claims")['count'][0])
 
-    st.markdown("---")
     st.subheader("Food Listings by City")
     df_city = run_query("SELECT Location as City, COUNT(*) as Count FROM food_listings GROUP BY Location ORDER BY Count DESC LIMIT 10")
     st.plotly_chart(px.bar(df_city, x='City', y='Count'), use_container_width=True)
 
-    st.subheader("Claims Status Distribution")
+    st.subheader("Claims Status")
     df_status = run_query("SELECT Status, COUNT(*) as Count FROM claims GROUP BY Status")
     st.plotly_chart(px.pie(df_status, names='Status', values='Count'), use_container_width=True)
 
@@ -71,6 +66,7 @@ elif menu == "Add Listing":
         location = st.text_input("Location")
         food_type = st.selectbox("Food Type", ["Vegetarian", "Non-Vegetarian", "Vegan"])
         meal_type = st.selectbox("Meal Type", ["Breakfast", "Lunch", "Dinner", "Snacks"])
+
         if st.form_submit_button("Add Listing"):
             run_action(
                 "INSERT INTO food_listings (Provider_ID, Food_Name, Quantity, Expiry_Date, Location, Food_Type, Meal_Type) VALUES (?,?,?,?,?,?,?)",
@@ -82,6 +78,7 @@ elif menu == "Claims":
     st.subheader("Food Claims")
     available = run_query("SELECT Food_ID, Food_Name, Quantity, Location FROM food_listings WHERE Food_ID NOT IN (SELECT Food_ID FROM claims WHERE Status='Completed')")
     st.dataframe(available)
+
     with st.form("claim_form"):
         food_id = st.number_input("Food ID to Claim", min_value=1)
         receiver_id = st.number_input("Receiver ID", min_value=1)
