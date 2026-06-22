@@ -122,7 +122,7 @@ if menu == "Dashboard":
     """)
     st.plotly_chart(px.bar(df_top_providers, x='Name', y='Listings'), use_container_width=True)
 
-  # Chart 5: Receivers by Each City
+  #  Chart 5:Receivers by Each City
     st.subheader("Receivers by City")
     df_recv_city = run_query(f"SELECT {recv_city_col} as City, COUNT(*) as Count FROM receivers GROUP BY {recv_city_col} ORDER BY Count DESC LIMIT 10")
     st.plotly_chart(px.bar(df_recv_city, x='City', y='Count', color='City'), use_container_width=True)
