@@ -64,6 +64,8 @@ if menu == "Dashboard":
         st.info("👆 Upload all 4 CSV files in sidebar to see dashboard")
         st.stop()
 
+    # Get column names dynamically
+    try:
         prov_df = pd.read_sql_query("SELECT * FROM providers LIMIT 1", conn)
         recv_df = pd.read_sql_query("SELECT * FROM receivers LIMIT 1", conn)
         list_df = pd.read_sql_query("SELECT * FROM food_listings LIMIT 1", conn)
