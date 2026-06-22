@@ -36,14 +36,6 @@ st.title("🍎 Food Wastage Management System")
 
 menu = st.sidebar.radio("Go to", ["Dashboard", "View Data", "Add Listing", "Claims"])
 
-if menu == "Dashboard":
-    st.subheader("Overview")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Providers", run_query("SELECT COUNT(*) as count FROM providers")['count'][0])
-    col2.metric("Total Receivers", run_query("SELECT COUNT(*) as count FROM receivers")['count'][0])
-    col3.metric("Food Listings", run_query("SELECT COUNT(*) as count FROM food_listings")['count'][0])
-    col4.metric("Total Claims", run_query("SELECT COUNT(*) as count FROM claims")['count'][0])
-
     st.subheader("Food Listings by City")
     df_city = run_query("SELECT Location as City, COUNT(*) as Count FROM food_listings GROUP BY Location ORDER BY Count DESC LIMIT 10")
     st.plotly_chart(px.bar(df_city, x='City', y='Count'), use_container_width=True)
