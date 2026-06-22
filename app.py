@@ -5,10 +5,7 @@ import plotly.express as px
 
 st.set_page_config(page_title="Food Wastage Management", layout="wide")
 
-st.title("🍎 Food Wastage Management System")
-
-menu = st.sidebar.radio("Go to", ["Dashboard", "View Data", "Add Listing", "Claims"])
-
+    st.title("🍎 Food Wastage Management System")
     st.subheader("Food Listings by City")
     df_city = run_query("SELECT Location as City, COUNT(*) as Count FROM food_listings GROUP BY Location ORDER BY Count DESC LIMIT 10")
     st.plotly_chart(px.bar(df_city, x='City', y='Count'), use_container_width=True)
